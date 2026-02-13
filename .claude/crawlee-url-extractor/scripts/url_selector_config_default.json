@@ -1,0 +1,95 @@
+{
+  "url_configs": [
+    {
+      "url_pattern": "https://juejin.cn/post/*",
+      "selectors": [".article-content", ".markdown-body", ".post-content"],
+      "name": "掘金文章",
+      "description": "掘金技术文章内容提取",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://aicoding.juejin.cn/post/*",
+      "selectors": ["#juejin > div:nth-child(1) > div > main > div.view.column-view.post-view > div.main-area.article-area > article > h1","#juejin > div:nth-child(1) > div > main > div.view.column-view.post-view > div.main-area.article-area > article > div.author-info-block","#article-root"],
+      "name": "博客园",
+      "description": "博客园文章内容提取",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://www.cnblogs.com/*",
+      "selectors": [".post-body"],
+      "name": "博客园",
+      "description": "博客园文章内容提取",
+      "combine_strategy": "best"
+    },
+    {
+      "url_pattern": "https://www.bilibili.com/video/*",
+      "selectors": [".video-desc-v1", ".video-desc", ".desc-info-text"],
+      "name": "B站视频",
+      "description": "B站视频描述信息提取",
+      "combine_strategy": "best"
+    },
+    {
+      "url_pattern": "*weibo.com/*",
+      "selectors": [".weibo-text", ".feed-content", ".WB_text"],
+      "name": "微博内容",
+      "description": "微博帖子内容提取",
+      "combine_strategy": "separate"
+    },
+    {
+      "url_pattern": "*weibo.com/*",
+      "selectors": ["body > div.main-content.w1240 > h1", "#top_bar_wrap", "#artibody"],
+      "name": "微博内容",
+      "description": "微博帖子内容提取",
+      "combine_strategy": "separate"
+    },
+    {
+      "url_pattern": "https://www.zhihu.com/question/*",
+      "selectors": ["#root > div > main > div > div.Post-Row-Content > div.Post-Row-Content-left"],
+      "name": "知乎问题页",
+      "description": "知乎问题页面内容提取",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://t.cj.sina.com.cn/articles/view/*",
+      "selectors": ["body > div.main-content.w1240 > h1", "#top_bar_wrap", "#article_content > div.article-content-left"],
+      "name": "新浪文章",
+      "description": "新浪文章",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://zhuanlan.zhihu.com/p/*",
+      "selectors": ["#root > div > main > div > div.Post-Row-Content > div.Post-Row-Content-left"],
+      "name": "知乎专栏",
+      "description": "知乎专栏文章内容提取",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://blog.csdn.net/*/article/details/*",
+      "selectors": ["#article-header-box","#content_views", "#toolBarBox"],
+      "name": "csdn博客",
+      "description": "csdn博客",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://metr.org/blog/",
+      "selectors": ["#wrapper > div:nth-child(1) > div.section.pt-0 > div"],
+      "name": "metr博客",
+      "description": "metr博客",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://www.infoq.cn/article/*",
+      "selectors": ["#layout > div.inner-content > div.article-content-layout.layout-content.ready > div.content-main"],
+      "name": "infoq",
+      "description": "infoq",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://dev.to/*",
+      "selectors": ["#main-title > div", "#article-show-container > div.crayons-article__main", "#comments-container"],
+      "name": "dev",
+      "description": "dev 社区",
+      "combine_strategy": "concat"
+    }
+  ]
+}
