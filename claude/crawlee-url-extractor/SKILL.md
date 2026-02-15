@@ -93,23 +93,141 @@ playwright install  # Install Playwright browsers
 5. **Check logs**: The extractor logs detailed information about the extraction process
 6. **Specify filename for predictability**: Use `-f` parameter when filename matters
 
+## Workflow: Content Quality Assurance
+
+### Step 1: Initial Extraction
+Run the extraction tool with default settings:
+```bash
+python crawlee_url.py https://example.com/article
+```
+
+### Step 2: Quality Check
+**Always inspect the extracted content** for quality issues:
+
+**❌ Warning Signs of Poor Extraction:**
+- Content length > 10,000 characters (likely includes entire page)
+- Contains JavaScript code: `function()`, `const `, `let `, `window.`, `document.`
+- Contains CSS styles: `{`, `}`, `@media`, `transition:`, `animation:`
+- Contains navigation menus: "首页", "产品服务", "关于我们", "联系我们"
+- Contains footer/sidebar elements: "版权所有", "友情链接", "热门标签"
+- Contains page structure: `<html>`, `<body>`, `<head>` tags
+
+**✅ Signs of Good Extraction:**
+- Content length between 1,000-8,000 characters (typical article length)
+- Contains article title, author, publication date
+- Contains structured content with headings (###, ####)
+- Contains paragraphs, lists, images relevant to the article
+- No code blocks unless the article is technical content
+
+### Step 3: Diagnose and Configure
+
+If quality check fails, identify the main content area:
+
+**Option A: Use Browser DevTools**
+1. Open the URL in Chrome/Firefox
+2. Press F12 to open Developer Tools
+3. Click the element picker (Ctrl+Shift+C)
+4. Click on the article content area
+5. Copy the CSS selector (right-click → Copy → Copy selector)
+
+**Option B: Use Playwright (Built-in)**
+```bash
+# Navigate to the page with Playwright to inspect structure
+python -c "
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=False)
+    page = browser.new_page()
+    page.goto('https://example.com/article')
+    page.pause()  # Inspect the page manually
+    browser.close()
+"
+```
+
+**Option C: Test Common Selectors**
+Try these common article content selectors:
+- `.article-content`, `.post-content`, `.entry-content`
+- `.detail-content`, `.article-body`, `.content-body`
+- `article`, `main article`, `.main-content`
+- `#content`, `#article`, `#main-content`
+
+### Step 4: Add Configuration to `url_selector_config_default.json`
+
+Add a new configuration entry:
+```json
+{
+  "url_pattern": "https://www.example.com/*",
+  "selectors": [".article-content", ".detail-content"],
+  "name": "Example Site",
+  "description": "Example site article content extraction",
+  "combine_strategy": "best"
+}
+```
+
+**Configuration Fields:**
+- `url_pattern`: URL pattern to match (supports wildcards)
+- `selectors`: Array of CSS selectors to try (in order)
+- `name`: Human-readable site name
+- `description`: Notes about this configuration
+- `combine_strategy`: How to combine multiple selectors
+  - `best`: Use the longest matching content
+  - `concat`: Concatenate all matches
+  - `separate`: Keep matches separate
+
+### Step 5: Verify and Iterate
+
+Re-run the extraction:
+```bash
+python crawlee_url.py https://example.com/article
+```
+
+Compare the new output:
+- Check content length reduction (should be 80-95% smaller)
+- Verify no JavaScript/CSS in output
+- Ensure article structure is preserved
+- Confirm all important content is included
+
+### Step 6: Document the Pattern
+
+After successful configuration, add it to the knowledge base:
+```markdown
+## Site: Example Site
+- **URL Pattern**: `https://www.example.com/*`
+- **Content Selector**: `.article-content`
+- **Character Reduction**: 25,570 → 2,495 (90.3% reduction)
+- **Notes**: Avoids navigation, footer, sidebar elements
+```
+
 ## Handling Redundant JS/CSS Content
 
-If the extracted Markdown contains redundant JavaScript code, CSS styles, or other non-content elements, optimize the extraction by modifying the `url_selector_config_default.json` configuration file.
+If the extracted Markdown contains redundant JavaScript code, CSS styles, or other non-content elements, **DO NOT manually edit the output**. Instead, fix the root cause by updating `url_selector_config_default.json`.
+
+### Common Issues and Solutions
+
+**Issue**: Content includes entire HTML page
+- **Cause**: No specific selector matched, using full page
+- **Fix**: Add specific content selector for the site
+
+**Issue**: Content includes navigation menus
+- **Cause**: Selector too broad, includes parent containers
+- **Fix**: Use more specific child selector
+
+**Issue**: Content includes sidebars/related articles
+- **Cause**: Selector includes sibling elements
+- **Fix**: Use direct child selector or exclude selectors
 
 ### Solution: Configure CSS Selectors
 
 **Target specific content area**:
 ```json
-"content_selectors": ["article", "main article", ".content-body"]
+{
+  "url_pattern": "https://www.example.com/news/*",
+  "selectors": [".detail-content"],
+  "name": "Example News",
+  "description": "News article content extraction",
+  "combine_strategy": "best"
+}
 ```
-### Workflow
-
-1. Run extraction with `--no-headless` to see the page
-2. Identify redundant elements in the output
-3. Add those elements to `exclude_selectors` in config
-4. Re-run extraction to verify clean output
-5. Save the optimized config for future use
 
 ## Limitations
 
@@ -118,8 +236,69 @@ If the extracted Markdown contains redundant JavaScript code, CSS styles, or oth
 3. **Anti-bot protections**: The extractor includes anti-detection measures, but some sites may still block automated access
 4. **WeChat articles**: May include inline JavaScript/CSS in the output. Consider adding exclude selectors for cleaner extraction.
 
+## Configuration Examples
+
+### Example 1: 53AI Knowledge Base
+**Problem**: Extraction returned 25,570 characters including full page HTML, CSS, JavaScript
+**Solution**: Added configuration to target `.detail-content` selector
+**Result**: Reduced to 2,495 characters (90.3% reduction)
+
+```json
+{
+  "url_pattern": "https://www.53ai.com/news/*",
+  "selectors": [".detail-content"],
+  "name": "53AI知识库",
+  "description": "53AI知识库文章正文内容提取(仅提取.detail-content,避免导航、JS/CSS干扰)",
+  "combine_strategy": "best"
+}
+```
+
+### Example 2: WeChat Articles
+**Problem**: WeChat articles include inline JavaScript and CSS styles
+**Solution**: Use specific content selectors to avoid script/style tags
+
+```json
+{
+  "url_pattern": "https://mp.weixin.qq.com/*",
+  "selectors": ["#activity-name > span", "#js_content"],
+  "name": "微信公众号",
+  "description": "微信公众号文章正文内容提取(仅提取#js_content,避免JS/CSS干扰)",
+  "combine_strategy": "concat"
+}
+```
+
+### Example 3: CSDN Blog
+**Problem**: CSDN pages include extensive navigation, ads, and sidebar
+**Solution**: Target specific article containers
+
+```json
+{
+  "url_pattern": "https://blog.csdn.net/*/article/details/*",
+  "selectors": ["#article-header-box", "#content_views"],
+  "name": "csdn博客",
+  "description": "CSDN博客文章内容提取",
+  "combine_strategy": "concat"
+}
+```
+
+### Example 4: Zhihu Column
+**Problem**: Zhihu includes complex navigation and recommendation sections
+**Solution**: Extract main content area only
+
+```json
+{
+  "url_pattern": "https://zhuanlan.zhihu.com/p/*",
+  "selectors": ["#root > div > main > div > div.Post-Row-Content > div.Post-Row-Content-left"],
+  "name": "知乎专栏",
+  "description": "知乎专栏文章内容提取",
+  "combine_strategy": "concat"
+}
+```
+
 ## Recent Updates
 
+- **2026-02-15**: Added content quality assurance workflow with automatic configuration guidance
+- **2026-02-15**: Enhanced quality check indicators to identify JS/CSS contamination
 - **2026-02-15**: Successfully tested WeChat article extraction
-- **Browser reuse**: Added support for browser session persistence to speed up multiple extractions
-- **Enhanced WeChat support**: Improved handling of WeChat's dynamic content loading
+- **2026-02-15**: Browser reuse support for faster multiple extractions
+- **2026-02-15**: Improved handling of 53AI knowledge base articles
