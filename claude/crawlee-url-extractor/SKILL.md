@@ -93,8 +93,33 @@ playwright install  # Install Playwright browsers
 5. **Check logs**: The extractor logs detailed information about the extraction process
 6. **Specify filename for predictability**: Use `-f` parameter when filename matters
 
+## Handling Redundant JS/CSS Content
+
+If the extracted Markdown contains redundant JavaScript code, CSS styles, or other non-content elements, optimize the extraction by modifying the `url_selector_config_default.json` configuration file.
+
+### Solution: Configure CSS Selectors
+
+**Target specific content area**:
+```json
+"content_selectors": ["article", "main article", ".content-body"]
+```
+### Workflow
+
+1. Run extraction with `--no-headless` to see the page
+2. Identify redundant elements in the output
+3. Add those elements to `exclude_selectors` in config
+4. Re-run extraction to verify clean output
+5. Save the optimized config for future use
+
 ## Limitations
 
 1. **Single URL extraction**: Current implementation extracts one URL at a time. For batch processing, call the function multiple times.
 2. **JavaScript-heavy sites**: Some extremely dynamic sites may require custom wait strategies
 3. **Anti-bot protections**: The extractor includes anti-detection measures, but some sites may still block automated access
+4. **WeChat articles**: May include inline JavaScript/CSS in the output. Consider adding exclude selectors for cleaner extraction.
+
+## Recent Updates
+
+- **2026-02-15**: Successfully tested WeChat article extraction
+- **Browser reuse**: Added support for browser session persistence to speed up multiple extractions
+- **Enhanced WeChat support**: Improved handling of WeChat's dynamic content loading
