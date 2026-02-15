@@ -100,10 +100,10 @@
     },
     {
       "url_pattern": "https://mp.weixin.qq.com/*",
-      "selectors": ["#js_content"],
+      "selectors": ["#activity-name > span", "#js_content"],
       "name": "微信公众号",
       "description": "微信公众号文章正文内容提取(仅提取#js_content,避免JS/CSS干扰)",
-      "combine_strategy": "best"
+      "combine_strategy": "concat"
     }
   ]
 }
