@@ -97,6 +97,13 @@
       "name": "dev",
       "description": "dev 社区",
       "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://mp.weixin.qq.com/*",
+      "selectors": ["#js_content"],
+      "name": "微信公众号",
+      "description": "微信公众号文章正文内容提取(仅提取#js_content,避免JS/CSS干扰)",
+      "combine_strategy": "best"
     }
   ]
 }
