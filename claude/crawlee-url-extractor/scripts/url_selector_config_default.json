@@ -65,9 +65,16 @@
     },
     {
       "url_pattern": "https://blog.csdn.net/*/article/details/*",
-      "selectors": ["#article-header-box","#content_views", "#toolBarBox"],
+      "selectors": ["#article-header-box","#content_views"],
       "name": "csdn博客",
       "description": "csdn博客",
+      "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://*.blog.csdn.net/*/article/details/*",
+      "selectors": ["#article-header-box > div","#mainBox > main > div.blog-content-box > article"],
+      "name": "csdn个人博客",
+      "description": "csdn个人博客",
       "combine_strategy": "concat"
     },
     {

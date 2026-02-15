@@ -1,0 +1,4 @@
+output/*
+crawlee_url.log
+storage/*
+userdata/*

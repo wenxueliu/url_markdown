@@ -34,7 +34,7 @@ Use this skill when:
 
 ### Command Line Usage
 
-python crawlee_url.py https://example.com -c url_selector_config_default.json -o output_dir -f custom_name -t timeout
+python crawlee_url.py https://example.com --no-headless -c url_selector_config_default.json -o output_dir -f custom_name -t timeout
 
 ## Output Files
 
@@ -68,35 +68,6 @@ Structured metadata including:
   "success": true
 }
 ```
-```bash
-python crawlee_url.py https://example.com -f custom_name
-```
-
-**Auto-generated format (when not specified):**
-```
-{domain}_{path}_{timestamp}.{ext}
-# Example: example.com_article_20250214_120000.md
-```
-
-## Common Workflows
-
-### Workflow: Extract Single Page with Custom Filename
-
-**When:** User wants to extract a specific page and control the output filename
-
-```python
-await extract_url_content(
-    url="https://example.com/article/123",
-    output_dir="articles",
-    output_filename="my_article",
-    headless=True,
-    timeout=120
-)
-```
-
-**Output:**
-- `articles/my_article.md` - Markdown content
-- `articles/my_article.json` - Metadata
 
 ### references/requirements.txt
 

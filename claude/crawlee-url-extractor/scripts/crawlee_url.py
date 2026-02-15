@@ -85,7 +85,8 @@ class UrlContentExtractor:
                  window_position=(100, 100), window_size=(1280, 720),
                  wait_timeout: int = 60, headless: bool = True,
                  selector_config_file: Optional[str] = None,
-                 output_filename: Optional[str] = None):
+                 output_filename: Optional[str] = None,
+                 user_data_dir: Optional[str] = "userdata"):
         self.output_dir = output_dir
         self.wait_timeout = wait_timeout
         self.headless = headless
@@ -93,6 +94,7 @@ class UrlContentExtractor:
         self.window_size = window_size
         self.selector_config_file = selector_config_file
         self.output_filename = output_filename  # 输出文件名，None时自动生成
+        self.user_data_dir = user_data_dir  # 用户数据目录，用于加载浏览器配置
         self.url_selector_configs: List[UrlSelectorConfig] = []
 
         # 加载URL选择器配置
@@ -108,9 +110,6 @@ class UrlContentExtractor:
                 "--disable-features=TranslateUI",
                 "--disable-infobars",
                 "--disable-extensions",
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-blink-features=AutomationControlled"  # 防止被检测为自动化工具
             ]
         }
 
@@ -125,6 +124,7 @@ class UrlContentExtractor:
 
         # 创建爬虫
         self.crawler = PlaywrightCrawler(
+            user_data_dir=self.user_data_dir,
             browser_launch_options=launch_options,
             browser_new_context_options=browser_context_options,
             request_handler_timeout=timedelta(seconds=wait_timeout)
@@ -674,7 +674,8 @@ class UrlContentExtractor:
 async def extract_url_content(url: str, output_dir: str = "html",
                              headless: bool = True, timeout: int = 60,
                              selector_config_file: Optional[str] = None,
-                             output_filename: Optional[str] = None):
+                             output_filename: Optional[str] = None,
+                             user_data_dir: Optional[str] = None):
     """便捷函数：提取单个URL的内容
 
     Args:
@@ -684,6 +685,7 @@ async def extract_url_content(url: str, output_dir: str = "html",
         timeout: 超时时间（秒）
         selector_config_file: URL选择器配置文件路径
         output_filename: 输出文件名（不含扩展名），不指定时自动生成
+        user_data_dir: 用户数据目录路径，用于加载浏览器配置
 
     Returns:
         提取结果的字典
@@ -693,7 +695,8 @@ async def extract_url_content(url: str, output_dir: str = "html",
         wait_timeout=timeout,
         headless=headless,  # 直接传递 headless 参数
         selector_config_file=selector_config_file,
-        output_filename=output_filename  # 传递输出文件名参数
+        output_filename=output_filename,  # 传递输出文件名参数
+        user_data_dir=user_data_dir  # 传递用户数据目录参数
     )
 
     await extractor.extract_url(url)
@@ -710,9 +713,11 @@ async def main():
                        help='输出文件名（不含扩展名），不指定时自动生成 (默认: None)')
     parser.add_argument('--headless', action='store_true', default=True, help='使用无头模式 (默认: True)')
     parser.add_argument('--no-headless', dest='headless', action='store_false', help='显示浏览器窗口')
-    parser.add_argument('--timeout', '-t', type=int, default=60, help='超时时间(秒) (默认: 30)')
+    parser.add_argument('--timeout', '-t', type=int, default=90, help='超时时间(秒) (默认: 30)')
     parser.add_argument('--config', '-c', default="url_selector_config_default.json",
                        help='URL选择器配置文件路径 (可选，默认使用默认配置)')
+    parser.add_argument('--user-data-dir', '-u', default='userdata',
+                       help='用户数据目录路径，用于加载浏览器配置（cookies、缓存等）')
 
     args = parser.parse_args()
 
@@ -723,6 +728,7 @@ async def main():
     logger.info(f"无头模式: {args.headless}")
     logger.info(f"超时时间: {args.timeout}秒")
     logger.info(f"配置文件: {args.config}")
+    logger.info(f"用户数据目录: {args.user_data_dir}")
 
     await extract_url_content(
         url=args.url,
@@ -730,7 +736,8 @@ async def main():
         output_filename=args.output_filename,
         headless=args.headless,
         timeout=args.timeout,
-        selector_config_file=args.config
+        selector_config_file=args.config,
+        user_data_dir=args.user_data_dir
     )
 
 if __name__ == '__main__':
