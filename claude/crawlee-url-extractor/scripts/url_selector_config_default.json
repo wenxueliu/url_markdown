@@ -104,6 +104,13 @@
       "name": "微信公众号",
       "description": "微信公众号文章正文内容提取(仅提取#js_content,避免JS/CSS干扰)",
       "combine_strategy": "concat"
+    },
+    {
+      "url_pattern": "https://www.53ai.com/news/*",
+      "selectors": [".detail-content"],
+      "name": "53AI知识库",
+      "description": "53AI知识库文章正文内容提取(仅提取.detail-content,避免导航、JS/CSS干扰)",
+      "combine_strategy": "best"
     }
   ]
 }
