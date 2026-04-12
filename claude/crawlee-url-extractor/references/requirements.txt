@@ -1,5 +1,5 @@
 # Core dependencies (versions from ~/Documents/pythonenv/xnote/lib/python3.14/site-packages/)
-crawlee==1.0.4
+crawlee==1.6.2
 playwright==1.55.0
 markdownify==1.2.2
 beautifulsoup4==4.14.2
