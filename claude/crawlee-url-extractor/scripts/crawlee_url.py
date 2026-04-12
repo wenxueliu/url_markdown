@@ -104,6 +104,7 @@ class UrlContentExtractor:
         launch_options = {
             "headless": headless,
             "args": [
+                "--no-sandbox",
                 f"--window-position={window_position[0]},{window_position[1]}",
                 f"--window-size={window_size[0]},{window_size[1]}",
                 "--force-device-scale-factor=1",
